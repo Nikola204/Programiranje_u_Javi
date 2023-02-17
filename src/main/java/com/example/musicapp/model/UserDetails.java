@@ -5,9 +5,9 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 
 public class UserDetails implements org.springframework.security.core.userdetails.UserDetails {
-    private User user;
+    private com.example.musicapp.model.User user;
 
-    public UserDetails(User user) {
+    public UserDetails(com.example.musicapp.model.User user) {
         this.user = user;
     }
 
@@ -50,7 +50,7 @@ public class UserDetails implements org.springframework.security.core.userdetail
         return user.getFirstname() + " " + user.getLastname();
     }
 
-    public User getUser() {
+    public com.example.musicapp.model.User getUser() {
         return user;
     }
 
@@ -58,7 +58,7 @@ public class UserDetails implements org.springframework.security.core.userdetail
         return user.getFirstname();
     }
 
-    public void setUser(User user) {
+    public void setUser(com.example.musicapp.model.User user) {
         this.user = user;
     }
 }

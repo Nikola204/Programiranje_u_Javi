@@ -2,6 +2,7 @@ package com.example.musicapp.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import org.hibernate.Session;
 
 import java.util.Set;
 
@@ -106,22 +107,30 @@ public class User {
         }
     }
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    private Set<Music> myMusic;
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {
+            CascadeType.MERGE
+    })
+    @JoinTable(name = "music_users",
+            joinColumns = @JoinColumn(name = "users_id"),
+            inverseJoinColumns = @JoinColumn(name = "music_id")
+    )
+    private Set<com.example.musicapp.model.Music> myMusic;
 
-    public Set<Music> getMyMusic() {
+    public Set<com.example.musicapp.model.Music> getMyMusic() {
         return myMusic;
     }
 
-    public void setMyMusic(Set<Music> myMusic) {
+    public void setMyMusic(Set<com.example.musicapp.model.Music> myMusic) {
         this.myMusic = myMusic;
     }
 
-    public void addMyMusic (Music m) {
+    public void addMyMusic (com.example.musicapp.model.Music m) {
         this.myMusic.add(m);
+        m.getUsers().add(this);
     }
 
-    public void removeMyMusic (Music m) {
+    public void removeMyMusic (com.example.musicapp.model.Music m) {
         this.myMusic.remove(m);
+        m.getUsers().remove(this);
     }
 }

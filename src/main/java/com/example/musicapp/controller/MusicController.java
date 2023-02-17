@@ -5,6 +5,9 @@ import com.example.musicapp.model.User;
 import com.example.musicapp.model.UserDetails;
 import com.example.musicapp.repositories.UserRepository;
 import com.example.musicapp.services.MusicService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,14 +25,12 @@ public class MusicController {
     private MusicService service;
 
     @Autowired
-    private UserRepository userService;
+    private UserRepository userRepo;
 
-    @GetMapping("/")
-    public String home(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return "home";
-    }
+    @PersistenceContext
+    EntityManager entityManager;
+
+
     @GetMapping("/music")
     public ModelAndView getAllMusic() {
         List<Music> list = service.getAllMusic();
@@ -49,28 +50,32 @@ public class MusicController {
     public String getMyMusic(Model model){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        Set<Music> list=userDetails.getUser().getMyMusic();
-        model.addAttribute("music", list);
+        User u = userRepo.findByEmail(userDetails.getUser().getEmail());
+        model.addAttribute("music", u.getMyMusic());
         return "my_music";
     }
 
     @RequestMapping("/deleteMyList/{id}")
+    @Transactional
     public String deleteMyList(@PathVariable("id") int id){
         Music m=service.getMusicById(id);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        User u = userDetails.getUser();
+        User u = userRepo.findByEmail(userDetails.getUser().getEmail());
         u.removeMyMusic(m);
+        entityManager.persist(u);
         return  "redirect:/my_music";
     }
 
     @RequestMapping("/mylist/{id}")
+    @Transactional
     public String getMyList(@PathVariable("id")int id){
         Music m=service.getMusicById(id);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        User u = userDetails.getUser();
+        User u = userRepo.findByEmail(userDetails.getUser().getEmail());
         u.addMyMusic(m);
+        entityManager.persist(u);
         return "redirect:/music";
     }
     @RequestMapping("/editMusic/{id}")
@@ -85,3 +90,4 @@ public class MusicController {
         return "redirect:/music";
     }
 }
+

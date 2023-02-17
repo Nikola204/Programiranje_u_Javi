@@ -1,9 +1,12 @@
 package com.example.musicapp.controller;
 
 import com.example.musicapp.model.User;
+import com.example.musicapp.model.UserDetails;
 import com.example.musicapp.repositories.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,5 +46,10 @@ public class AuthController {
         return "login_form";
     }
 
-
+    @GetMapping("/")
+    public String home(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return "home";
+    }
 }
